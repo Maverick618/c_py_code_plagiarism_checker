@@ -1,0 +1,19 @@
+This is a simple sh emulator.
+
+It has commands:
+
+# list
+  list the corresponding process
+
+# run 
+  run the program
+
+# quit
+  quit the program
+
+# kill
+  kill one process
+
+Compile:
+
+  make Mysh

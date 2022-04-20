@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $1 = 'task1' ]; 
+then
+	echo "$1"
+	./task1 $2 $3;
+elif [ $1 = 'task2' ]; 
+then
+	./task2 $2 $3;
+elif [ $1 = 'task3' ];
+then
+	./task3 $2 $3;
+else
+	./task4 $2 $3;
+fi
+
