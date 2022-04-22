@@ -109,7 +109,7 @@ class Homework:
         pre_seq.append(str(cursor.kind)[11:])
         pre_location.append(str(cursor.location))
         for node in cursor.get_children():
-            self.__clang_ast_travers(node, pre_seq, post_seq)
+            self.__clang_ast_travers(node, pre_seq, post_seq, pre_location, post_location)
         post_seq.append(str(cursor.kind)[11:])
         post_location.append(str(cursor.location))
 
