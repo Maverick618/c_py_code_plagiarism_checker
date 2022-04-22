@@ -28,6 +28,8 @@ class Homework:
         assert os.path.isdir(path)
         self._files_path = []
         self._type = code_type
+        self.pre_location = []
+        self.post_location = []
 
         for root, subdir, files in os.walk(path):
             for filename in files:
@@ -77,14 +79,12 @@ class Homework:
         assert isinstance(index, Index)
 
         pre_seq = []
-        pre_location = []
         post_seq = []
-        post_location = []
         for filepath in self._files_path:
             tu = index.parse(filepath)
             assert isinstance(tu, TranslationUnit)
-            self.__clang_ast_travers(tu.cursor, pre_seq, post_seq, pre_location, post_location)
-        return pre_seq, post_seq, pre_location, post_location
+            self.__clang_ast_travers(tu.cursor, pre_seq, post_seq)
+        return pre_seq, post_seq
 
     def __get_py_ast_seq(self):
         """
@@ -101,21 +101,52 @@ class Homework:
         return pre_seq, post_seq
         pass
 
-    def __clang_ast_travers(self, cursor, pre_seq, post_seq, pre_location, post_location):
+    def __clang_ast_travers(self, cursor, pre_seq, post_seq):
         """
         ast pre & post travers
-        todo: record the location information
+        done:
+            1. pre & post traver
+            2. record the location information
         """
         pre_seq.append(str(cursor.kind)[11:])
-        pre_location.append(str(cursor.location))
+        temp = str(cursor.location).split()
+        loc = [temp[2][1:-2], int(temp[4][:-1])]
+        self.pre_location.append(loc)
         for node in cursor.get_children():
-            self.__clang_ast_travers(node, pre_seq, post_seq, pre_location, post_location)
+            self.__clang_ast_travers(node, pre_seq, post_seq)
         post_seq.append(str(cursor.kind)[11:])
-        post_location.append(str(cursor.location))
+        self.post_location.append(loc)
 
-    def get_raw_text(self, file, begin, end):
+    def get_raw_text(self, index):
         """
         get the raw text in the original text at lines [begin, end]
+
+        get file path, begin and end from the list of index
+
+        the element of index:
+        [file path, line number]
         """
-        pass
+
+        # get the file path and line_nums
+        dic = {}
+        for filepath in index:
+            if filepath != -1 and self.pre_location[filepath][0] != 'on':  # Notice: 'None'[1:-2] == 'on', line 114
+                if self.pre_location[filepath][0] not in dic:
+                    dic[self.pre_location[filepath][0]] = {self.pre_location[filepath][1]}
+                else:
+                    dic[self.pre_location[filepath][0]].add(self.pre_location[filepath][1])
+
+        # todo: be a list for each file ?
+        text = ""
+
+        for path in dic:
+            with open(path, 'r') as file:
+                start, end = min(dic[path]), max(dic[path])
+                line_num = 0
+                while line_num <= end:
+                    line = file.readline()
+                    line_num += 1
+                    if line_num >= start:
+                        text += line
+        return text
     pass

@@ -39,6 +39,8 @@ def SmithWaterman(seq1, seq2, match, un_match, blank):
         y = point[1]
         # s1 = ""
         # s2 = ""
+        idx_1 = []
+        idx_2 = []
         sim = 0
         while s_matrix[x, y] != 0:  # 回溯
             point = path[x, y]
@@ -49,14 +51,20 @@ def SmithWaterman(seq1, seq2, match, un_match, blank):
             if bx == x:
                 # s1 = '-' + ',' + s1
                 # s2 = seq2[y] + ',' + s2
+                idx_1.insert(0, -1)
+                idx_2.insert(0, y - 1)
                 pass
             elif by == y:
                 # s1 = seq1[x] + ',' + s1
                 # s2 = '-' + ',' + s2
+                idx_1.insert(0, x - 1)
+                idx_2.insert(0, -1)
                 pass
             else:
                 # s1 = seq1[x] + ',' + s1
                 # s2 = seq2[y] + ',' + s2
+                idx_1.insert(0, x - 1)
+                idx_2.insert(0, y - 1)
                 sim += 1
             x = bx
             y = by
@@ -67,13 +75,15 @@ def SmithWaterman(seq1, seq2, match, un_match, blank):
         # # 相似度计算
         # print('代码相似度为%.2f %%' % round(100 * 2 * sim / (len(seq1) + len(seq2) - 2), 4))
         res = round(100 * 2 * sim / (len(seq1) + len(seq2) - 2), 4)
-        return res
+        return res, idx_1, idx_2
     # 三个分值的设定问了一个专业的同学，说我所借鉴的代码是简化版的SmithWaterman，实际更为复杂
     # Smith_Waterman(test, original, 1, -1 / 3, 1)
 
 
 class MyThread(threading.Thread):
     _result = None
+    _idx_1 = None
+    _idx_2 = None
 
     def __init__(self, func, args=()):
         super(MyThread, self).__init__()
@@ -81,13 +91,13 @@ class MyThread(threading.Thread):
         self.args = args
 
     def run(self):
-        self._result = self.func(*self.args)
+        self._result, self._idx_1, self._idx_2 = self.func(*self.args)
 
     @property
     def result(self):
         # noinspection PyBroadException
         try:
-            return self._result
+            return self._result, self._idx_1, self._idx_2
         except Exception:
             return None
 
@@ -105,7 +115,7 @@ def get_similarity(seq_1, seq_2, seq_3, seq_4):
     for t in threads:
         t.join()
 
-    res_1 = t1.result
-    res_2 = t2.result
+    res_1, idx_1, idx_2 = t1.result
+    res_2, idx_3, idx_4 = t2.result
     res = (res_1 + res_2) / 2
-    return round(res, 2)
+    return round(res, 2), idx_1, idx_2, idx_3, idx_4
