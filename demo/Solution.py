@@ -119,3 +119,9 @@ def get_similarity(seq_1, seq_2, seq_3, seq_4):
     res_2, idx_3, idx_4 = t2.result
     res = (res_1 + res_2) / 2
     return round(res, 2), idx_1, idx_2, idx_3, idx_4
+
+
+# seq1 2000
+# (5 + 4 + 3 + 2 + 1) * 400 * 400
+# seq1 = [e]
+# seq2 = [5]

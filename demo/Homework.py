@@ -107,6 +107,7 @@ class Homework:
         done:
             1. pre & post traver
             2. record the location information
+            todo: functionDecl ast
         """
         pre_seq.append(str(cursor.kind)[11:])
         temp = str(cursor.location).split()
